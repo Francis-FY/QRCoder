@@ -28,14 +28,12 @@ public class DecodeThread extends Thread {
 
     private Handler handler;
     private final Hashtable<DecodeHintType, Object> hints;
-    private Camera.Size size;
     private Rect rect;
     private Handler fragementHandler;
     private Point screenSize;
 
-    public DecodeThread(Camera.Size size,Point screenSize, Handler fragHandler, Rect rect){
+    public DecodeThread(Point screenSize, Handler fragHandler, Rect rect){
 
-        this.size = size;
         this.rect = rect;
         this.fragementHandler = fragHandler;
         this.screenSize = screenSize;
@@ -60,7 +58,7 @@ public class DecodeThread extends Thread {
     @Override
     public void run() {
         Looper.prepare();
-        handler = new DecodeHandler(size,screenSize,rect,fragementHandler,hints);
+        handler = new DecodeHandler(screenSize,rect,fragementHandler,hints);
         countDownLatch.countDown();
         Looper.loop();
     }

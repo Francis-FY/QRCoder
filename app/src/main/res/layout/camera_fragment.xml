@@ -15,6 +15,7 @@
         android:id="@+id/id_scanframeview"
         android:layout_width="match_parent"
         android:layout_height="match_parent"/>
+
     <RelativeLayout
         android:id="@+id/id_relative_layer"
         android:layout_width="match_parent"
@@ -34,12 +35,14 @@
                 android:layout_width="40dp"
                 android:layout_height="40dp"
                 android:layout_marginRight="20dp"
+                android:background="@drawable/camera_fragment_btn_bg"
                 android:src="@mipmap/flash_off"/>
 
             <ImageView
                 android:id="@+id/id_select_pic"
                 android:layout_width="40dp"
                 android:layout_height="40dp"
+                android:background="@drawable/camera_fragment_btn_bg"
                 android:src="@mipmap/select_img"/>
         </LinearLayout>
     </RelativeLayout>

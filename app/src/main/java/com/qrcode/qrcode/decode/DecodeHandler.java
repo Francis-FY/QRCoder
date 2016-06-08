@@ -28,32 +28,22 @@ import java.util.Hashtable;
  */
 public class DecodeHandler extends Handler {
     private final MultiFormatReader multiFormatReader = new MultiFormatReader();
-    private Camera.Size size;
     private Rect rect;
     private Handler handler;
-    private int[] rgb;
     private Point screenSize;
 
-    DecodeHandler(Camera.Size size,Point screenSize, Rect rect, Handler handler, Hashtable hints) {
+    DecodeHandler(Point screenSize, Rect rect, Handler handler, Hashtable hints) {
         multiFormatReader.setHints(hints);
-        this.size = size;
         this.rect = rect;
         this.handler = handler;
-        rgb = new int[size.width * size.height];
         this.screenSize = screenSize;
-
-        int left = rect.left*size.height/screenSize.x;
-        int right = rect.right*size.height/screenSize.x;
-        int top = rect.top*size.width/screenSize.y;
-        int bottom = rect.bottom*size.width/screenSize.y;
-        this.rect = new Rect(left,top,right,bottom);
     }
 
     @Override
     public void handleMessage(Message msg) {
         switch (msg.what) {
             case 0:
-                decode((byte[]) msg.obj);
+                decode((byte[]) msg.obj, msg.arg1, msg.arg2);
                 break;
             default:
                 break;
@@ -61,15 +51,24 @@ public class DecodeHandler extends Handler {
         super.handleMessage(msg);
     }
 
-    private void decode(byte[] data) {
-        Utils.decodeYUV420SP(rgb, data, size.width, size.height);
-        Bitmap bitmap = Bitmap.createBitmap(rgb, size.width, size.height, Bitmap.Config.RGB_565);
+    private void decode(byte[] data, int width, int height) {
+
+        int []rgb = new int[width * height];
+        int left = rect.left * height / screenSize.x;
+        int right = rect.right * height / screenSize.x;
+        int top = rect.top * width / screenSize.y;
+        int bottom = rect.bottom * width / screenSize.y;
+        rect.set(left, top, right, bottom);
+
+        Utils.decodeYUV420SP(rgb, data, width, height);
+        Bitmap bitmap = Bitmap.createBitmap(rgb, width, height, Bitmap.Config.RGB_565);
         Matrix matrix = new Matrix();
         matrix.setRotate(90);
         Bitmap bmp = Bitmap.createBitmap(bitmap, rect.top, rect.left, rect.width(), rect.height(), matrix, false);
-        int[] pixels = new int[rect.width() * rect.height()];
-        bmp.getPixels(pixels, 0, bmp.getWidth(), 0, 0, bmp.getWidth(), bmp.getHeight());
-        RGBLuminanceSource source = new RGBLuminanceSource(bmp.getWidth(), bmp.getHeight(), pixels);
+//        int[] pixels = new int[rect.width() * rect.height()];
+        bmp.getPixels(rgb, 0, bmp.getWidth(), 0, 0, bmp.getWidth(), bmp.getHeight());
+
+        RGBLuminanceSource source = new RGBLuminanceSource(bmp.getWidth(), bmp.getHeight(), rgb);
         if (!bmp.isRecycled()) {
             bmp.recycle();
             bmp = null;
@@ -79,6 +78,9 @@ public class DecodeHandler extends Handler {
             bitmap = null;
         }
         System.gc();
+//        if (BuildConfig.DEBUG) Log.d("DecodeHandler", height + "-" + width);
+//        if (BuildConfig.DEBUG) Log.d("DecodeHandler", "rect:" + rect);
+//        PlanarYUVLuminanceSource source = new PlanarYUVLuminanceSource(data,height,width,rect.left,rect.right,rect.width(),rect.height(),false);
 
         BinaryBitmap binaryBitmap = new BinaryBitmap(new HybridBinarizer(source));
         Result rawResult = null;

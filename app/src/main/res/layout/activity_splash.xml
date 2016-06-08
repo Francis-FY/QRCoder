@@ -2,7 +2,7 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:background="#0099cc"
+    android:background="@color/titlebar"
     android:fitsSystemWindows="true"
     tools:context="com.qrcode.qrcode.SplashActivity">
     <TextView
@@ -12,7 +12,7 @@
         android:gravity="center"
         android:keepScreenOn="true"
         android:text="@string/splash_text"
-        android:textColor="#33b5e5"
-        android:textSize="40sp"
+        android:textColor="#ffffff"
+        android:textSize="50sp"
         android:textStyle="bold" />
 </FrameLayout>

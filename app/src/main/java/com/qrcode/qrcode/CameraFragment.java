@@ -73,7 +73,6 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     private int state = 0;
     private boolean isComplete = true;
     private boolean running = true;
-    private boolean isInitialize = false;
 
     private Handler handler = new Handler() {
         @Override
@@ -95,9 +94,7 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
                     isComplete = false;
                     break;
                 case 2: //获取权限成功
-                    if (isInitialize) {
-//                        initSurface();
-                    }
+                    initSurface();
                     break;
                 default:
                     break;
@@ -129,50 +126,32 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         scanLine.setLayoutParams(layoutParams);
         relativeLayer.addView(scanLine);
         initEvents();
-//        if (ContextCompat.checkSelfPermission(getContext(), Manifest.permission.CAMERA) == PackageManager.PERMISSION_GRANTED) {
-//            initSurface();
-//        }
-        isInitialize = true;
         mHolder = surfaceView.getHolder();
-        checkAndRequestPermission();
-        try {
-            mCamera = Camera.open();
-        } catch (Exception e) {
-            Log.d("CameraFragment", "连接相机失败");
-            e.printStackTrace();
+        if (checkAndRequestPermission()) {
+            initSurface();
         }
-        mHolder.addCallback(this);
-        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+        decodeThread = new DecodeThread(screenSize, handler, frameRect);
+        decodeThread.start();
         return v;
     }
 
-//    private void initSurface() {
-//        Log.d("SSS", "initSurface: ");
-//        mHolder = surfaceView.getHolder();
-//        getCamera();
-//        mHolder.addCallback(this);
-//        mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
-//        initPreview();
-//    }
-
-//    private void initPreview() {
-//        if(mCamera == null){
-//            return;
-//        }
-//        mCamera.setDisplayOrientation(90);
-//        try {
-//            mCamera.setPreviewDisplay(mHolder);
-//        } catch (IOException e) {
-//            e.printStackTrace();
-//        }
-//        mCamera.setPreviewCallback(this);
-//        initCamera();
-//        mCamera.startPreview();
-//
-//        Camera.Size size = mCamera.getParameters().getPreviewSize();
-//        decodeThread = new DecodeThread(size, screenSize, handler, frameRect);
-//        decodeThread.start();
-//    }
+    private void initSurface() {
+        Log.d("SSS", "initSurface: ");
+        try {
+            mCamera = Camera.open();
+            mHolder.addCallback(this);
+            mHolder.setType(SurfaceHolder.SURFACE_TYPE_PUSH_BUFFERS);
+            mCamera.setDisplayOrientation(90);
+            mCamera.setPreviewDisplay(mHolder);
+            mCamera.setPreviewCallback(this);
+            Camera.Parameters parameters = mCamera.getParameters();
+            parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);//1连续对焦
+            mCamera.setParameters(parameters);
+            mCamera.startPreview();
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
+    }
 
     @Override
     public void onStart() {
@@ -280,46 +259,19 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
 
     @Override
     public void surfaceCreated(SurfaceHolder surfaceHolder) {
-        try {
-            Log.d(TAG, "surfaceCreated: Created");
-            if (mCamera == null) {
-                new AlertDialog.Builder(getContext()).setMessage("打开相机失败,请检查是否授予权限！").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                    @Override
-                    public void onClick(DialogInterface dialogInterface, int i) {
-                        Process.killProcess(Process.myPid());
-                    }
-                }).setCancelable(false).create().show();
-            } else {
-                mCamera.setDisplayOrientation(90);
-                mCamera.setPreviewDisplay(surfaceHolder);
-                mCamera.setPreviewCallback(this);
-                initCamera();
-                mCamera.startPreview();
-
-                Camera.Size size = mCamera.getParameters().getPreviewSize();
-                decodeThread = new DecodeThread(size, screenSize, handler, frameRect);
-                decodeThread.start();
-            }
-        } catch (IOException e) {
-            Log.d("surfaceCreated", "Error setting camera preview: " + e.getMessage());
-        }
+        initSurface();
     }
 
     @Override
     public void surfaceChanged(SurfaceHolder surfaceHolder, int i, int i1, int i2) {
         Log.d(TAG, "surfaceChanged: ");
-        if (mCamera == null) {
-            new AlertDialog.Builder(getContext()).setMessage("打开相机失败,请检查是否授予权限！").setPositiveButton("确定", new DialogInterface.OnClickListener() {
-                @Override
-                public void onClick(DialogInterface dialogInterface, int i) {
-                    Process.killProcess(Process.myPid());
-                }
-            }).setCancelable(false).create().show();
-        } else {
+        if (mCamera != null) {
             mCamera.autoFocus(new Camera.AutoFocusCallback() {
                 @Override
                 public void onAutoFocus(boolean b, Camera camera) {
-                    initCamera();
+                    Camera.Parameters parameters = mCamera.getParameters();
+                    parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);//1连续对焦
+                    mCamera.setParameters(parameters);
                     mCamera.cancelAutoFocus();
                 }
 
@@ -336,15 +288,10 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
         try {
             mCamera.stopPreview();
             mCamera.setPreviewCallback(null);
-//            mCamera.release();
+            mCamera.release();
+            mCamera = null;
         } catch (Exception e) {
         }
-    }
-
-    private void initCamera() {
-        Camera.Parameters parameters = mCamera.getParameters();
-        parameters.setFocusMode(Camera.Parameters.FOCUS_MODE_CONTINUOUS_PICTURE);//1连续对焦
-        mCamera.setParameters(parameters);
     }
 
     private int dipToPx(int dip) {
@@ -355,7 +302,8 @@ public class CameraFragment extends Fragment implements SurfaceHolder.Callback, 
     @Override
     public void onPreviewFrame(byte[] data, Camera camera) {
         if (running && isComplete) {
-            Message message = decodeThread.getHandler().obtainMessage(0, data);
+            Camera.Size size = camera.getParameters().getPreviewSize();
+            Message message = decodeThread.getHandler().obtainMessage(0, size.width, size.height, data);
             message.sendToTarget();
             handler.sendEmptyMessage(1);
         }

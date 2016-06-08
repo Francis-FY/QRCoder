@@ -116,7 +116,7 @@ public class ScanFrameView extends View {
         //绘制文字
         String text = "请把二维码或条形码放置在识别框中";
         paint.setAntiAlias(true);
-        paint.setTextSize(dipToPx(14));
+        paint.setTextSize(dipToPx(12));
         float textWidth = paint.measureText(text);
         canvas.drawText(text, screenCenter.x - textWidth / 2, frame.top - dipToPx(20), paint);
 

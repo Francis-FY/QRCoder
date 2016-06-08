@@ -1,5 +1,6 @@
 package com.qrcode.qrcode;
 
+import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.net.Uri;
@@ -11,6 +12,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -56,7 +58,13 @@ public class GenerateFragment extends Fragment implements View.OnClickListener {
 
     private void initEvent() {
         mButton.setOnClickListener(this);
-        resultImage.setOnClickListener(this);
+        resultImage.setOnLongClickListener(new View.OnLongClickListener() {
+            @Override
+            public boolean onLongClick(View view) {
+                shareQrcode();
+                return true;
+            }
+        });
     }
 
     @Override
@@ -64,9 +72,6 @@ public class GenerateFragment extends Fragment implements View.OnClickListener {
         switch (view.getId()) {
             case R.id.id_generate_btn:
                 generateQrCode();
-                break;
-            case R.id.id_generated_qrcode:
-                shareQrcode();
                 break;
             default:
                 break;
@@ -126,13 +131,14 @@ public class GenerateFragment extends Fragment implements View.OnClickListener {
                 mBitmap.compress(Bitmap.CompressFormat.JPEG, 100, os);
                 os.flush();
                 os.close();
+                InputMethodManager inputMethodManager = (InputMethodManager) getContext().getSystemService(Context.INPUT_METHOD_SERVICE);
+                inputMethodManager.hideSoftInputFromWindow(mEditText.getWindowToken(),0);
                 isGenerated = true;
             } catch (FileNotFoundException e) {
                 e.printStackTrace();
             } catch (IOException e) {
                 e.printStackTrace();
             }
-
         } catch (WriterException e) {
             e.printStackTrace();
             Toast.makeText(getContext(), "生成失败", Toast.LENGTH_SHORT).show();

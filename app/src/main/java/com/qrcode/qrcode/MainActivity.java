@@ -16,6 +16,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.os.Bundle;
 import android.view.Window;
 import android.view.WindowManager;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -63,7 +64,6 @@ public class MainActivity extends AppCompatActivity {
                     pageIndicator1.setImageResource(R.drawable.viewpager_indicator_selected);
                     pageIndicator2.setImageResource(R.drawable.viewpager_indicator_normal);
                     cameraFragment.toggleRunning();
-
                 } else {
                     pageIndicator2.setImageResource(R.drawable.viewpager_indicator_selected);
                     pageIndicator1.setImageResource(R.drawable.viewpager_indicator_normal);

@@ -29,15 +29,15 @@
 
             <ImageView
                 android:id="@+id/id_viewpager_indicator1"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:layout_marginRight="5dp"
                 android:src="@drawable/viewpager_indicator_selected"/>
 
             <ImageView
                 android:id="@+id/id_viewpager_indicator2"
-                android:layout_width="10dp"
-                android:layout_height="10dp"
+                android:layout_width="8dp"
+                android:layout_height="8dp"
                 android:src="@drawable/viewpager_indicator_normal"/>
         </LinearLayout>
     </RelativeLayout>
