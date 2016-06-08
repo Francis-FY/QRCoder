@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+             android:layout_width="match_parent"
+             android:layout_height="match_parent"
+             android:fitsSystemWindows="true"
+             android:keepScreenOn="true">
+
+    <SurfaceView
+        android:id="@+id/id_sufaceview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+
+
+    <com.qrcode.qrcode.view.ScanFrameView
+        android:id="@+id/id_scanframeview"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"/>
+    <RelativeLayout
+        android:id="@+id/id_relative_layer"
+        android:layout_width="match_parent"
+        android:layout_height="match_parent">
+
+        <LinearLayout
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_alignParentBottom="true"
+            android:layout_centerHorizontal="true"
+            android:layout_marginBottom="50dp"
+            android:gravity="center"
+            android:orientation="horizontal">
+
+            <ImageView
+                android:id="@+id/id_flash"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_marginRight="20dp"
+                android:src="@mipmap/flash_off"/>
+
+            <ImageView
+                android:id="@+id/id_select_pic"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:src="@mipmap/select_img"/>
+        </LinearLayout>
+    </RelativeLayout>
+</FrameLayout>

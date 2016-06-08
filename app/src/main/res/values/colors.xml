@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="colorPrimary">#3F51B5</color>
+    <color name="colorPrimaryDark">#303F9F</color>
+    <color name="colorAccent">#FF4081</color>
+
+    <color name="black_overlay">#66000000</color>
+    <color name="viewpager_indicator">#15c29a</color>
+    <color name="overlayer">#6d000000</color>
+    <color name="titlebar">#13b9a8</color>
+</resources>
